@@ -1,0 +1,95 @@
+:root {
+    --wheelsize: 420px;
+}
+
+body {
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    margin: 0;
+    background: #f7f7f8;
+}
+
+.container {
+    width: 720px;
+    max-width: 95%;
+}
+
+.controls {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 12px;
+}
+
+textarea {
+    width: 100%;
+    height: 250px;
+    resize: vertical;
+    caret-color: #9ca3af;
+    padding: 2px;
+    font-size: large;
+}
+
+.button {
+    padding: 8px 12px;
+    background: #111827;
+    color: #fff;
+    border-radius: 6px;
+    border: none;
+    cursor: pointer;
+}
+
+.button[disabled] {
+    opacity: 0.5;
+    cursor: default;
+}
+
+.wheelWrap {
+    display: flex;
+    gap: 16px;
+    align-items: center;
+}
+
+.wheel {
+    width: var(--wheelsize);
+    height: var(--wheelsize);
+    border-radius: 50%;
+    overflow: hidden;
+    position: relative;
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.12);
+    background: white;
+}
+
+/* .pointer{
+    width:0;height:0;border-left:16px solid transparent;border-right:16px solid transparent;border-bottom:28px solid #ef4444;
+    position:relative;
+    top:-18px;
+    margin-left:6px;
+    } */
+.pointer {
+    width: 0;
+    height: 0;
+    border-left: 16px solid transparent;
+    border-right: 16px solid transparent;
+    border-top: 28px solid #ef4444;
+    /* вместо border-bottom /
+        position:relative;
+        top:18px; / поменял знак, чтобы треугольник сдвинуть вниз */
+    margin-left: 6px;
+    /* transform: translateX(-10pt); */
+}
+
+.sectorLabel {
+    font-size: 14px;
+    fill: #fff;
+    pointer-events: none;
+    text-anchor: middle;
+}
+
+.result {
+    margin-top: 12px;
+    font-weight: 600;
+    font-size: xx-large;
+}
