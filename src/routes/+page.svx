@@ -1,9 +1,0 @@
----
-title: Примеры SvelteKit
----
-
-<script>
-
-</script>
-
-# { title }
