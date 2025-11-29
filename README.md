@@ -1,4 +1,11 @@
-# sv
+# Примеры SvelteKit
+
+stackblitz: <https://stackblitz.com/~/github.com/closescreen/sveltekit-demos>
+
+git: <https://github.com/closescreen/sveltekit-demos>
+
+
+## sv
 
 Everything you need to build a Svelte project, powered by [`sv`](https://github.com/sveltejs/cli).
 
