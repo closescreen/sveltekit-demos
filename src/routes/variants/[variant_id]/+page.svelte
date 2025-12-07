@@ -66,36 +66,42 @@
 		title: string;
 		sort_func: (v: variants.Variant) => number;
 		order: 'asc' | 'desc';
+		description: string;
 	}[] = [
 		{
 			id: 'score',
 			title: 'По плюсам',
 			sort_func: (v: variants.Variant): number => v.score, // v.pros - v.cons,
-			order: 'desc'
+			order: 'desc',
+			description: 'В каком варианте больше сумма плюсов/минусов: + | ++ | - | --'
 		},
 		{
 			id: 'time',
 			title: 'По скорости',
 			sort_func: (v: variants.Variant): number => v.time,
-			order: 'asc'
+			order: 'asc',
+			description: 'В каком варианте меньше сумма плюсов/минусов после T: t+ | т-'
 		},
 		{
 			id: 'cost',
 			title: 'По дешевизне',
 			sort_func: (v: variants.Variant): number => v.cost,
-			order: 'asc'
+			order: 'asc',
+			description: 'В каком варианте меньше сумма плюсов/минусов С: c+ |c-'
 		},
 		{
 			id: 'quality',
 			title: 'По качеству',
 			sort_func: (v: variants.Variant): number => v.quality,
-			order: 'desc'
+			order: 'desc',
+			description: 'В каком варианте больше сумма плюсов/минусов по К: к+ | k-'
 		},
 		{
 			id: 'questions',
 			title: 'По понятности',
 			sort_func: (v: variants.Variant): number => v.questions.length,
-			order: 'asc'
+			order: 'asc',
+			description: 'В каком варианте меньше вопросов: ?'
 		}
 	];
 
@@ -115,6 +121,17 @@
 		url.searchParams.set('sortby', sortingName);
 		goto(`${url.pathname}?${url.searchParams.toString()}`, { replaceState: true });
 	}
+
+	function addToDsl(stringToAdd: string) {
+		variantsDSL += lineBreakIfNeed() + stringToAdd + ' ';
+		textareaElement?.focus();
+
+		function lineBreakIfNeed() {
+			return !variantsDSL || variantsDSL.endsWith('\n') ? '' : '\n';
+		}
+	}
+
+	let textareaElement: HTMLTextAreaElement | null = null;
 </script>
 
 <div class="flex min-h-screen">
@@ -124,9 +141,22 @@
 		<textarea
 			use:autoResize
 			bind:value={variantsDSL}
+			bind:this={textareaElement}
 			class="textarea textarea-borderedw-full min-h-10 w-full"
 		>
 		</textarea>
+		<div>
+			<button class="btn" onclick={() => addToDsl('=')} title="Добавить варинт">=</button>
+			<button class="btn" onclick={() => addToDsl('+')} title="Добавить плюс варианта">+</button>
+			<button class="btn" onclick={() => addToDsl('-')} title="Добавить минус варианта">-</button>
+			<button class="btn" onclick={() => addToDsl('T+')} title="Плюс ко времени">T+</button>
+			<button class="btn" onclick={() => addToDsl('T-')} title="Минус ко времени">T-</button>
+			<button class="btn" onclick={() => addToDsl('С-')} title="Минус к стоимости">C+</button>
+			<button class="btn" onclick={() => addToDsl('С+')} title="Плюс к стоимости">C+</button>
+			<button class="btn" onclick={() => addToDsl('K+')} title="Плюс к качеству">K+</button>
+			<button class="btn" onclick={() => addToDsl('K-')} title="Минус к качеству">K-</button>
+			<button class="btn" onclick={() => addToDsl('?')} title="Добавить вопрос">?-</button>
+		</div>
 	</div>
 
 	<!-- Правая колонка -->
@@ -137,6 +167,7 @@
 					<button
 						class={{ btn: true, outline: sorting.id === data.sortby }}
 						onclick={() => selectSorting(sorting.id)}
+						title={sorting.description}
 					>
 						{sorting.title}
 					</button>
@@ -181,15 +212,25 @@
 							</p>
 						</div>
 						<div class="w-3/12">
-							<span class={{ 'opacity-50': data.sortby != 'score' }}> Плюсы: {variant.score}<br/></span>
+							<span class={{ 'opacity-50': data.sortby != 'score' }}>
+								Плюсы: {variant.score}<br /></span
+							>
 
-							<span class={{ 'opacity-50 p-1': data.sortby != 'time' }}> Время: {variant.time}<br/></span>
+							<span class={{ 'opacity-50 p-1': data.sortby != 'time' }}>
+								Время: {variant.time}<br /></span
+							>
 
-							<span class={{ 'opacity-50': data.sortby != 'cost' }}> Стоимость: {variant.time}<br/></span>
+							<span class={{ 'opacity-50': data.sortby != 'cost' }}>
+								Стоимость: {variant.time}<br /></span
+							>
 
-							<span class={{ 'opacity-50': data.sortby != 'quality' }}> Качество: {variant.time}<br/></span>
+							<span class={{ 'opacity-50': data.sortby != 'quality' }}>
+								Качество: {variant.time}<br /></span
+							>
 
-							<span class={{ 'opacity-50': data.sortby != 'questions' }}> Вопросы: {variant.questions.length}<br/></span>
+							<span class={{ 'opacity-50': data.sortby != 'questions' }}>
+								Вопросы: {variant.questions.length}<br /></span
+							>
 						</div>
 					</div>
 				</div>
