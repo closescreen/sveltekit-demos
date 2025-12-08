@@ -7,38 +7,19 @@
 	import { page } from '$app/state';
 
 	const { data }: PageProps = $props();
+	const { sortby = 'score' } = data;
 
-	let variantsDSL = $state(`
-= вариант первый
-    + это первый плюс варианта
-    - а это минус варианта
-    + это еще один плюс варианта, плюсы и минусы складыватся
-    т? открытый вопрос про требуемое время на этот вариант
-    c - минус балл от стоимости
-= вариант второй
-    - у этого варианта такой минус
-    с+ и плюс один балл к строимости
-    k+ бал к качеству
-= третий вариант
-    - минус номер один
-    - минус номер два
-        интересно а что если добавить строки внизу
-        и у этих строк не будет обозначений
-    с++ два балла к стоимости варианта
-    т+ один балл к требуемуму времени
-    t+ кажется еще на это время потратится
-    k+ бал к качеству
-    к+ еще бал к качеству
-= вариант четыре
-    + один плюс
-    + еще один плюс
-    ++ двойной плюс
-    ? открытый вопрос
-    ? еще один вопрос
-    t- можно указывать минусы к времени (в сравнении с другими вариантами)
-    c- можно минусить стоимость
-    c- можно минусить еще
-    `);
+	let variantsDSL = $state(
+        `= вариант_A
++ плюс_первый
++ плюс_второй
+- минус_первый
+- минус_второй
+
+= вариант_B
++ плюс
+- минус
+`);
 
 	const autoResize: Action<HTMLTextAreaElement> = (node) => {
 		// Функция подгонки высоты
@@ -71,9 +52,9 @@
 		{
 			id: 'score',
 			title: 'По плюсам',
-			sort_func: (v: variants.Variant): number => v.score, // v.pros - v.cons,
+			sort_func: (v: variants.Variant): number => v.score,
 			order: 'desc',
-			description: 'В каком варианте больше сумма плюсов/минусов: + | ++ | - | --'
+			description: 'В каком варианте больше сумма плюсов/минусов: + | - '
 		},
 		{
 			id: 'time',
@@ -106,7 +87,7 @@
 	];
 
 	const currentSorting = $derived.by(() => {
-		return sortings.find((s) => s.id == data.sortby) ?? sortings[0];
+		return sortings.find((s) => s.id == sortby) ?? sortings[0];
 	});
 
 	const variantsArray = $derived.by(() => {
@@ -122,12 +103,44 @@
 		goto(`${url.pathname}?${url.searchParams.toString()}`, { replaceState: true });
 	}
 
-	function addToDsl(stringToAdd: string) {
-		variantsDSL += lineBreakIfNeed() + stringToAdd + ' ';
+	function addToText(targetText: string, stringToAdd: string, place?: 'atEnd') {
+		if (place == 'atEnd') {
+			variantsDSL += lineBreakIfNeed(variantsDSL) + stringToAdd;
+		} else {
+			if (!textareaElement) return;
+
+			const cursorStartPosition = textareaElement.selectionStart ?? 0;
+			const cursorEndPosition = textareaElement.selectionEnd ?? 0;
+
+			const linebreak = lineBreakIfNeed(variantsDSL, cursorStartPosition);
+
+			const newValue =
+				variantsDSL.substring(0, cursorStartPosition) +
+				linebreak +
+				stringToAdd +
+				variantsDSL.substring(cursorEndPosition);
+			textareaElement.value = newValue;
+
+			textareaElement.selectionStart = textareaElement.selectionEnd =
+				cursorStartPosition + linebreak.length + stringToAdd.length;
+
+			textareaElement?.dispatchEvent(new Event('input', { bubbles: true }));
+		}
+
 		textareaElement?.focus();
 
-		function lineBreakIfNeed() {
-			return !variantsDSL || variantsDSL.endsWith('\n') ? '' : '\n';
+		function lineBreakIfNeed(targerText: string, startPos?: number) {
+			if (!targerText || !startPos) {
+				return !targerText || targerText.endsWith('\n') ? '' : '\n';
+			}
+
+			const ch = targerText.charAt(startPos - 1);
+			console.log(ch);
+			if (ch == '\n') {
+				return '';
+			} else {
+				return '\n';
+			}
 		}
 	}
 
@@ -145,17 +158,116 @@
 			class="textarea textarea-borderedw-full min-h-10 w-full"
 		>
 		</textarea>
+
 		<div>
-			<button class="btn" onclick={() => addToDsl('=')} title="Добавить варинт">=</button>
-			<button class="btn" onclick={() => addToDsl('+')} title="Добавить плюс варианта">+</button>
-			<button class="btn" onclick={() => addToDsl('-')} title="Добавить минус варианта">-</button>
-			<button class="btn" onclick={() => addToDsl('T+')} title="Плюс ко времени">T+</button>
-			<button class="btn" onclick={() => addToDsl('T-')} title="Минус ко времени">T-</button>
-			<button class="btn" onclick={() => addToDsl('С-')} title="Минус к стоимости">C+</button>
-			<button class="btn" onclick={() => addToDsl('С+')} title="Плюс к стоимости">C+</button>
-			<button class="btn" onclick={() => addToDsl('K+')} title="Плюс к качеству">K+</button>
-			<button class="btn" onclick={() => addToDsl('K-')} title="Минус к качеству">K-</button>
-			<button class="btn" onclick={() => addToDsl('?')} title="Добавить вопрос">?-</button>
+			Вариант:
+			<button
+				class="btn"
+				onclick={() => addToText(variantsDSL, '= ', 'atEnd')}
+				title="Добавить варинт">=</button
+			>
+		</div>
+		<div>
+			Плюсы / минусы:
+			<button
+				class="btn bg-success-content"
+				onclick={() => addToText(variantsDSL, '++ ')}
+				title="Двойной плюс варианта">++</button
+			>
+			<button
+				class="btn bg-success-content"
+				onclick={() => addToText(variantsDSL, '+ ')}
+				title="Плюс варианта">+</button
+			>
+			<button
+				class="btn bg-error-content"
+				onclick={() => addToText(variantsDSL, '- ')}
+				title="Минус варианта">-</button
+			>
+			<button
+				class="btn bg-error-content"
+				onclick={() => addToText(variantsDSL, '-- ')}
+				title="Двойной минус варианта">--</button
+			>
+		</div>
+		<div>
+			Время:
+			<button
+				class="btn bg-success-content"
+				onclick={() => addToText(variantsDSL, 'T-- ')}
+				title="Намного ускорит">T--</button
+			>
+			<button
+				class="btn bg-success-content"
+				onclick={() => addToText(variantsDSL, 'T- ')}
+				title="Ускорит">T-</button
+			>
+			<button class="btn" onclick={() => addToText(variantsDSL, 'T?')} title="Вопрос по времени"
+				>T?</button
+			>
+			<button
+				class="btn bg-error-content"
+				onclick={() => addToText(variantsDSL, 'T+ ')}
+				title="Потребует времени">T+</button
+			>
+			<button
+				class="btn bg-error-content"
+				onclick={() => addToText(variantsDSL, 'T++ ')}
+				title="Потребует много времени">T++</button
+			>
+		</div>
+		<div>
+			Стоимость:
+			<button
+				class="btn bg-success-content"
+				onclick={() => addToText(variantsDSL, 'С-- ')}
+				title="Сильно удешевит">C--</button
+			>
+			<button
+				class="btn bg-success-content"
+				onclick={() => addToText(variantsDSL, 'С- ')}
+				title="Удешевит">C-</button
+			>
+			<button class="btn" onclick={() => addToText(variantsDSL, 'C?')} title="Вопрос по стоимости"
+				>C?</button
+			>
+			<button
+				class="btn bg-error-content"
+				onclick={() => addToText(variantsDSL, 'С+ ')}
+				title="Добавит стоимости">C+</button
+			>
+			<button
+				class="btn bg-error-content"
+				onclick={() => addToText(variantsDSL, 'С++ ')}
+				title="Сильно добавит стоимости">C++</button
+			>
+		</div>
+
+		<div>
+			Качество:
+			<button
+				class="btn bg-success-content"
+				onclick={() => addToText(variantsDSL, 'K++ ')}
+				title="Двойной плюс к качеству">K++</button
+			>
+			<button
+				class="btn bg-success-content"
+				onclick={() => addToText(variantsDSL, 'K+ ')}
+				title="Плюс к качеству">K+</button
+			>
+			<button class="btn" onclick={() => addToText(variantsDSL, 'K?')} title="Вопрос по качеству"
+				>K?</button
+			>
+			<button
+				class="btn bg-error-content"
+				onclick={() => addToText(variantsDSL, 'K- ')}
+				title="Минус к качеству">K-</button
+			>
+			<button
+				class="btn bg-error-content"
+				onclick={() => addToText(variantsDSL, 'K-- ')}
+				title="Двойной минус к качеству">K--</button
+			>
 		</div>
 	</div>
 
@@ -165,7 +277,7 @@
 			<div class="mb-4 space-x-2">
 				{#each sortings as sorting}
 					<button
-						class={{ btn: true, outline: sorting.id === data.sortby }}
+						class={{ btn: true, outline: sorting.id === sortby }}
 						onclick={() => selectSorting(sorting.id)}
 						title={sorting.description}
 					>
@@ -185,24 +297,20 @@
 							<p class="whitespace-pre-wrap">
 								{#each variant.rawLines
 									.filter((l) => l.type != 'title')
-									.sort( (l1, l2) => (l1.type == l2.type ? 0 : l1.type == data.sortby ? -1 : 1) ) as line}
+									.sort((l1, l2) => (l1.type == l2.type ? 0 : l1.type == sortby ? -1 : 1)) as line}
 									<span
 										class={{
-											'opacity-50': line.type != data.sortby,
+											'opacity-50': line.type != sortby,
 											'bg-success-content':
-												(line.type == data.sortby &&
+												(line.type == sortby &&
 													currentSorting.order == 'desc' &&
 													line.sign == '+') ||
-												(line.type == data.sortby &&
-													currentSorting.order == 'asc' &&
-													line.sign == '-'),
+												(line.type == sortby && currentSorting.order == 'asc' && line.sign == '-'),
 											'bg-error-content':
-												(line.type == data.sortby &&
+												(line.type == sortby &&
 													currentSorting.order == 'desc' &&
 													line.sign == '-') ||
-												(line.type == data.sortby &&
-													currentSorting.order == 'asc' &&
-													line.sign == '+'),
+												(line.type == sortby && currentSorting.order == 'asc' && line.sign == '+'),
 											'bg-info-content': line.type == 'questions'
 										}}
 									>
@@ -212,23 +320,21 @@
 							</p>
 						</div>
 						<div class="w-3/12">
-							<span class={{ 'opacity-50': data.sortby != 'score' }}>
-								Плюсы: {variant.score}<br /></span
-							>
+							<span class={{ 'opacity-50': sortby != 'score' }}> Плюсы: {variant.score}<br /></span>
 
-							<span class={{ 'opacity-50 p-1': data.sortby != 'time' }}>
+							<span class={{ 'opacity-50 p-1': sortby != 'time' }}>
 								Время: {variant.time}<br /></span
 							>
 
-							<span class={{ 'opacity-50': data.sortby != 'cost' }}>
+							<span class={{ 'opacity-50': sortby != 'cost' }}>
 								Стоимость: {variant.time}<br /></span
 							>
 
-							<span class={{ 'opacity-50': data.sortby != 'quality' }}>
+							<span class={{ 'opacity-50': sortby != 'quality' }}>
 								Качество: {variant.time}<br /></span
 							>
 
-							<span class={{ 'opacity-50': data.sortby != 'questions' }}>
+							<span class={{ 'opacity-50': sortby != 'questions' }}>
 								Вопросы: {variant.questions.length}<br /></span
 							>
 						</div>
