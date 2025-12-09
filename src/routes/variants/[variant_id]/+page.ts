@@ -6,5 +6,9 @@ export const load: PageLoad = ({ params, url }) => {
         error(404, 'Not found');
     }
 
-    return { variant_id: params.variant_id, sortby: url.searchParams.get('sortby') }
+    return {
+        variant_id: params.variant_id,
+        // важно поставить undefined а не null, чтобы в компоненте применилось значение по умолчанию:
+        sortby: url.searchParams.get('sortby') || undefined
+    }
 };
