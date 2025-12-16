@@ -1,0 +1,9 @@
+{
+    "$schema": "https://inlang.com/schema/inlang-message-format",
+    "example_message": "Привет {username}",
+    "menu": {
+        "fortune_wheel": "Колесо",
+        "variants": "Варианты"
+    },
+    "site_title": "Примеры Svelte"
+}

@@ -5,21 +5,21 @@
 	import * as variants from '$lib/variants';
 	import { goto } from '$app/navigation';
 	import { page } from '$app/state';
+	import { m } from '$lib/paraglide/messages';
 
 	const { data }: PageProps = $props();
 	const { sortby = 'score' } = data;
 
 	let variantsDSL = $state(
-        `= вариант_A
-+ плюс_первый
-+ плюс_второй
-- минус_первый
-- минус_второй
+		`= 
++ 
+- 
 
-= вариант_B
-+ плюс
-- минус
-`);
+= 
++ 
+- 
+`
+	);
 
 	const autoResize: Action<HTMLTextAreaElement> = (node) => {
 		// Функция подгонки высоты
@@ -269,6 +269,12 @@
 				title="Двойной минус к качеству">K--</button
 			>
 		</div>
+		<div>
+			{m.example_message({ username: 'Дима' }, { locale: 'ru' })}
+		</div>
+        <div>
+            <input type="checkbox">
+        </div>
 	</div>
 
 	<!-- Правая колонка -->

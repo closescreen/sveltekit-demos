@@ -1,0 +1,9 @@
+{
+    "$schema": "https://inlang.com/schema/inlang-message-format",
+    "example_message": "Hello world {username}",
+    "menu": {
+        "fortune_wheel": "Wheel",
+        "variants": "Variants"
+    },
+    "site_title": "Svelte samples"
+}
