@@ -3,7 +3,8 @@
     "example_message": "Привет {username}",
     "menu": {
         "fortune_wheel": "Колесо",
-        "variants": "Варианты"
+        "variants": "Варианты",
+        "home": "Домой"
     },
     "site_title": "Примеры Svelte"
 }

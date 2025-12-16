@@ -3,7 +3,8 @@
     "example_message": "Hello world {username}",
     "menu": {
         "fortune_wheel": "Wheel",
-        "variants": "Variants"
+        "variants": "Variants",
+        "home": "Home"
     },
     "site_title": "Svelte samples"
 }

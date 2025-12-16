@@ -1,9 +1,15 @@
-import {m} from "$lib/paraglide/messages";
+import { m } from "$lib/paraglide/messages";
 
-export const menuItems: { text: string, href: string }[] = [{
-    text: m["menu.fortune_wheel"](),
-    href: "/fortune-wheel",
-}, {
-    text: m["menu.variants"](),
-    href: "/variants/1"
-},]
+export const menuItems: { text: string, href: string, is_main?: boolean }[] = [
+    {
+        text: m["menu.home"](),
+        href: "/",
+        is_main: true,
+    },
+    {
+        text: m["menu.fortune_wheel"](),
+        href: "/fortune-wheel",
+    }, {
+        text: m["menu.variants"](),
+        href: "/variants/1"
+    },]
