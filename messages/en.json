@@ -4,7 +4,7 @@
     "menu": {
         "fortune_wheel": "Wheel",
         "variants": "Variants",
-        "home": "Home"
+        "home": "Svelte samples"
     },
     "site_title": "Svelte samples",
     "advancedMode": "Advanced mode"

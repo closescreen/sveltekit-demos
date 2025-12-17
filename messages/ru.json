@@ -4,7 +4,7 @@
     "menu": {
         "fortune_wheel": "Колесо",
         "variants": "Варианты",
-        "home": "Домой"
+        "home": "Примеры Svelte"
     },
     "site_title": "Примеры Svelte",
     "advancedMode": "Расширенный режим"

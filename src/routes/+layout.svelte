@@ -4,8 +4,15 @@
 	import { menuItems } from './MenuItems';
 	import LocaleMenu from './LocaleMenu.svelte';
 	import { m } from '$lib/paraglide/messages';
+	import { page } from '$app/state';
 
 	let { children } = $props();
+
+	let currentTitle = $derived.by(() => {
+		const pathname = page.url.pathname;
+		const titleFromMenu = menuItems.find((i) => i.href == pathname)?.text;
+		return titleFromMenu ?? pathname;
+	});
 </script>
 
 <svelte:head>
@@ -40,7 +47,7 @@
 
 	<!-- Центр: название -->
 	<div class="navbar-center">
-		<p class="btn btn-ghost text-xl">{m.site_title()}</p>
+		<p class="text-xl">{currentTitle}</p>
 	</div>
 
 	<!-- Правая часть: переключатель языка -->
