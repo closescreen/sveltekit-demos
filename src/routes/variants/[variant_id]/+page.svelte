@@ -1,14 +1,16 @@
 <script lang="ts">
-	import { onMount } from 'svelte';
 	import type { PageProps } from './$types';
 	import type { Action } from 'svelte/action';
 	import * as variants from '$lib/variants';
 	import { goto } from '$app/navigation';
 	import { page } from '$app/state';
 	import { m } from '$lib/paraglide/messages';
+	import { fade, slide } from 'svelte/transition';
 
 	const { data }: PageProps = $props();
 	const { sortby = 'score' } = data;
+
+	let advancedMode = $state(false);
 
 	let variantsDSL = $state(
 		`= 
@@ -48,43 +50,53 @@
 		sort_func: (v: variants.Variant) => number;
 		order: 'asc' | 'desc';
 		description: string;
+		isAdvanced: boolean;
 	}[] = [
 		{
 			id: 'score',
 			title: 'По плюсам',
 			sort_func: (v: variants.Variant): number => v.score,
 			order: 'desc',
-			description: 'В каком варианте больше сумма плюсов/минусов: + | - '
+			description: 'В каком варианте больше сумма плюсов/минусов: + | - ',
+			isAdvanced: false
 		},
 		{
 			id: 'time',
 			title: 'По скорости',
 			sort_func: (v: variants.Variant): number => v.time,
 			order: 'asc',
-			description: 'В каком варианте меньше сумма плюсов/минусов после T: t+ | т-'
+			description: 'В каком варианте меньше сумма плюсов/минусов после T: t+ | т-',
+			isAdvanced: true
 		},
 		{
 			id: 'cost',
 			title: 'По дешевизне',
 			sort_func: (v: variants.Variant): number => v.cost,
 			order: 'asc',
-			description: 'В каком варианте меньше сумма плюсов/минусов С: c+ |c-'
+			description: 'В каком варианте меньше сумма плюсов/минусов С: c+ |c-',
+			isAdvanced: true
 		},
 		{
 			id: 'quality',
 			title: 'По качеству',
 			sort_func: (v: variants.Variant): number => v.quality,
 			order: 'desc',
-			description: 'В каком варианте больше сумма плюсов/минусов по К: к+ | k-'
+			description: 'В каком варианте больше сумма плюсов/минусов по К: к+ | k-',
+			isAdvanced: true
 		},
 		{
 			id: 'questions',
 			title: 'По понятности',
 			sort_func: (v: variants.Variant): number => v.questions.length,
 			order: 'asc',
-			description: 'В каком варианте меньше вопросов: ?'
+			description: 'В каком варианте меньше вопросов: ?',
+			isAdvanced: true
 		}
 	];
+
+	const sortingsInMode = $derived.by(() =>
+		advancedMode ? sortings : sortings.filter((s) => !s.isAdvanced)
+	);
 
 	const currentSorting = $derived.by(() => {
 		return sortings.find((s) => s.id == sortby) ?? sortings[0];
@@ -150,7 +162,6 @@
 <div class="flex min-h-screen">
 	<!-- Левая колонка -->
 	<div class="bg-base-200 w-1/2 p-8">
-		<h2 class="mb-4 text-lg font-bold">Левый контент</h2>
 		<textarea
 			use:autoResize
 			bind:value={variantsDSL}
@@ -190,99 +201,108 @@
 				title="Двойной минус варианта">--</button
 			>
 		</div>
-		<div>
-			Время:
-			<button
-				class="btn bg-success-content"
-				onclick={() => addToText(variantsDSL, 'T-- ')}
-				title="Намного ускорит">T--</button
-			>
-			<button
-				class="btn bg-success-content"
-				onclick={() => addToText(variantsDSL, 'T- ')}
-				title="Ускорит">T-</button
-			>
-			<button class="btn" onclick={() => addToText(variantsDSL, 'T?')} title="Вопрос по времени"
-				>T?</button
-			>
-			<button
-				class="btn bg-error-content"
-				onclick={() => addToText(variantsDSL, 'T+ ')}
-				title="Потребует времени">T+</button
-			>
-			<button
-				class="btn bg-error-content"
-				onclick={() => addToText(variantsDSL, 'T++ ')}
-				title="Потребует много времени">T++</button
-			>
-		</div>
-		<div>
-			Стоимость:
-			<button
-				class="btn bg-success-content"
-				onclick={() => addToText(variantsDSL, 'С-- ')}
-				title="Сильно удешевит">C--</button
-			>
-			<button
-				class="btn bg-success-content"
-				onclick={() => addToText(variantsDSL, 'С- ')}
-				title="Удешевит">C-</button
-			>
-			<button class="btn" onclick={() => addToText(variantsDSL, 'C?')} title="Вопрос по стоимости"
-				>C?</button
-			>
-			<button
-				class="btn bg-error-content"
-				onclick={() => addToText(variantsDSL, 'С+ ')}
-				title="Добавит стоимости">C+</button
-			>
-			<button
-				class="btn bg-error-content"
-				onclick={() => addToText(variantsDSL, 'С++ ')}
-				title="Сильно добавит стоимости">C++</button
-			>
-		</div>
 
-		<div>
-			Качество:
-			<button
-				class="btn bg-success-content"
-				onclick={() => addToText(variantsDSL, 'K++ ')}
-				title="Двойной плюс к качеству">K++</button
-			>
-			<button
-				class="btn bg-success-content"
-				onclick={() => addToText(variantsDSL, 'K+ ')}
-				title="Плюс к качеству">K+</button
-			>
-			<button class="btn" onclick={() => addToText(variantsDSL, 'K?')} title="Вопрос по качеству"
-				>K?</button
-			>
-			<button
-				class="btn bg-error-content"
-				onclick={() => addToText(variantsDSL, 'K- ')}
-				title="Минус к качеству">K-</button
-			>
-			<button
-				class="btn bg-error-content"
-				onclick={() => addToText(variantsDSL, 'K-- ')}
-				title="Двойной минус к качеству">K--</button
-			>
+		{#if advancedMode}
+			<div transition:slide>
+				Время:
+				<button
+					class="btn bg-success-content"
+					onclick={() => addToText(variantsDSL, 'T-- ')}
+					title="Намного ускорит">T--</button
+				>
+				<button
+					class="btn bg-success-content"
+					onclick={() => addToText(variantsDSL, 'T- ')}
+					title="Ускорит">T-</button
+				>
+				<button class="btn" onclick={() => addToText(variantsDSL, 'T?')} title="Вопрос по времени"
+					>T?</button
+				>
+				<button
+					class="btn bg-error-content"
+					onclick={() => addToText(variantsDSL, 'T+ ')}
+					title="Потребует времени">T+</button
+				>
+				<button
+					class="btn bg-error-content"
+					onclick={() => addToText(variantsDSL, 'T++ ')}
+					title="Потребует много времени">T++</button
+				>
+			</div>
+			<div transition:slide>
+				Стоимость:
+				<button
+					class="btn bg-success-content"
+					onclick={() => addToText(variantsDSL, 'С-- ')}
+					title="Сильно удешевит">C--</button
+				>
+				<button
+					class="btn bg-success-content"
+					onclick={() => addToText(variantsDSL, 'С- ')}
+					title="Удешевит">C-</button
+				>
+				<button class="btn" onclick={() => addToText(variantsDSL, 'C?')} title="Вопрос по стоимости"
+					>C?</button
+				>
+				<button
+					class="btn bg-error-content"
+					onclick={() => addToText(variantsDSL, 'С+ ')}
+					title="Добавит стоимости">C+</button
+				>
+				<button
+					class="btn bg-error-content"
+					onclick={() => addToText(variantsDSL, 'С++ ')}
+					title="Сильно добавит стоимости">C++</button
+				>
+			</div>
+
+			<div transition:slide>
+				Качество:
+				<button
+					class="btn bg-success-content"
+					onclick={() => addToText(variantsDSL, 'K++ ')}
+					title="Двойной плюс к качеству">K++</button
+				>
+				<button
+					class="btn bg-success-content"
+					onclick={() => addToText(variantsDSL, 'K+ ')}
+					title="Плюс к качеству">K+</button
+				>
+				<button class="btn" onclick={() => addToText(variantsDSL, 'K?')} title="Вопрос по качеству"
+					>K?</button
+				>
+				<button
+					class="btn bg-error-content"
+					onclick={() => addToText(variantsDSL, 'K- ')}
+					title="Минус к качеству">K-</button
+				>
+				<button
+					class="btn bg-error-content"
+					onclick={() => addToText(variantsDSL, 'K-- ')}
+					title="Двойной минус к качеству">K--</button
+				>
+			</div>
+		{/if}
+
+		<div class="my-3">
+			<label for="advancedMode" class="cursor-pointer me-1"> {m.advancedMode()}</label>
+			<input
+				id="advancedMode"
+				type="checkbox"
+				class="toggle"
+				bind:checked={advancedMode}
+				title="Расширенный режим"
+			/>
 		</div>
-		<div>
-			{m.example_message({ username: 'Дима' }, { locale: 'ru' })}
-		</div>
-        <div>
-            <input type="checkbox">
-        </div>
 	</div>
 
 	<!-- Правая колонка -->
 	<div class="bg-base-300 w-1/2 p-8">
 		<div class="w-full">
 			<div class="mb-4 space-x-2">
-				{#each sortings as sorting}
+				{#each sortingsInMode as sorting}
 					<button
+						transition:slide
 						class={{ btn: true, outline: sorting.id === sortby }}
 						onclick={() => selectSorting(sorting.id)}
 						title={sorting.description}

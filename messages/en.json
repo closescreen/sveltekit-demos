@@ -6,5 +6,6 @@
         "variants": "Variants",
         "home": "Home"
     },
-    "site_title": "Svelte samples"
+    "site_title": "Svelte samples",
+    "advancedMode": "Advanced mode"
 }

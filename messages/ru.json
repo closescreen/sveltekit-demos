@@ -6,5 +6,6 @@
         "variants": "Варианты",
         "home": "Домой"
     },
-    "site_title": "Примеры Svelte"
+    "site_title": "Примеры Svelte",
+    "advancedMode": "Расширенный режим"
 }

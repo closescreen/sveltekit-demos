@@ -15,7 +15,7 @@
 				<div class="max-w-md">
 					<h1 class="text-4xl font-semibold text-neutral-500">{i.text}</h1>
 					<p class="py-6 text-neutral-600">
-						Элегантный переход между информационными пространствами
+						{i.description}
 					</p>
 					<button class="btn btn-outline btn-primary" onclick={() => goto(i.href)}>
 						Открыть
