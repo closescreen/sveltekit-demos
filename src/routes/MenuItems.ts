@@ -10,9 +10,15 @@ export const menuItems: { text: string, href: string, description: string, is_ma
     {
         text: m["menu.fortune_wheel"](),
         href: "/fortune-wheel",
-        description:"Крутите колесо, пусть решает случай"
+        description: "Крутите колесо, пусть решает случай"
     }, {
         text: m["menu.variants"](),
         href: "/variants/1",
-        description:"Опишите плюсы, минусы и легко выбирайте"
-    },]
+        description: "Опишите плюсы, минусы и легко выбирайте"
+    },
+    {
+        text: 'Корзина покупателя (демо)',
+        href: '/cart',
+        description: 'Демо-корзина покупателя. Эксперимент, насколько легко создавать такие страницы'
+    }
+]

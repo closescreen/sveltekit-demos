@@ -7,5 +7,16 @@
         "home": "Svelte samples"
     },
     "site_title": "Svelte samples",
-    "advancedMode": "Advanced mode"
+    "advancedMode": "Advanced mode",
+    "cart": {
+        "add": "Add",
+        "recommendations": "Recommendations",
+        "cart": "Cart",
+        "remove_from_cart": "Remove from cart",
+        "order": "Order",
+        "continue_shoping": "Continue shoping",
+        "sum": "Sum",
+        "discount": "Discount",
+        "total": "Total"
+    }
 }

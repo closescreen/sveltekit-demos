@@ -7,5 +7,16 @@
         "home": "Примеры Svelte"
     },
     "site_title": "Примеры Svelte",
-    "advancedMode": "Расширенный режим"
+    "advancedMode": "Расширенный режим",
+    "cart": {
+        "add": "Добавить",
+        "recommendations": "Рекомендуем",
+        "cart": "Корзина",
+        "remove_from_cart": "Удалить из корзины",
+        "order": "Оформить заказ",
+        "continue_shoping": "Продолжить покупки",
+        "sum": "Сумма",
+        "discount": "Скидка",
+        "total": "К оплате"
+    }
 }
