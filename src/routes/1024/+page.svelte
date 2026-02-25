@@ -60,25 +60,7 @@
 
 	type Direction = 'up' | 'down' | 'left' | 'right';
 
-	// function handleKey(event) {
-	// 	switch (event.key) {
-	// 		case 'ArrowUp':
-	// 			move('up');
-	// 			break;
-	// 		case 'ArrowDown':
-	// 			move('down');
-	// 			break;
-	// 		case 'ArrowLeft':
-	// 			move('left');
-	// 			break;
-	// 		case 'ArrowRight':
-	// 			move('right');
-	// 			break;
-	// 	}
-	// }
-
 	// переназначение:
-
 	let keyBindings = {
 		up: 'ArrowUp',
 		down: 'ArrowDown',
@@ -120,10 +102,32 @@
 	}
 
 	// --------  игра: -------
-	let board = Array(4)
-		.fill(0)
-		.map(() => Array(4).fill(0));
-	let score = 0;
+	let board = $state(
+		Array(4)
+			.fill(0)
+			.map(() => Array(4).fill(0))
+	);
+
+	const maxTile = () => Math.max(...board.map((row) => Math.max(...row)));
+	let score = $state(0);
+	let win = $state(false);
+	let maxList = $state([2]);
+
+	const bgColors = {
+		0: 'bg-gray-200',
+		2: 'bg-yellow-400',
+		4: 'bg-green-400',
+		8: 'bg-blue-400',
+		16: 'bg-purple-400',
+		32: 'bg-red-400',
+		64: 'bg-orange-400',
+		128: 'bg-pink-400',
+		256: 'bg-indigo-400',
+		512: 'bg-teal-400',
+		1024: 'bg-gray-800',
+        2048: 'bg-fuchsia-900',
+        4096: 'bg-bg-fuchsia-950',
+	};
 
 	function addRandomTile() {
 		const emptyTiles = [];
@@ -228,10 +232,15 @@
 
 		if (moved) {
 			addRandomTile();
+			if (maxList.at(-1) < maxTile()) {
+				maxList.push(maxTile());
+			}
+			win = maxTile() >= 1024;
 		}
 	}
 
 	function startNewGame() {
+		maxList = [2];
 		board = Array(4)
 			.fill(0)
 			.map(() => Array(4).fill(0));
@@ -244,75 +253,79 @@
 	startNewGame();
 </script>
 
-<div class="flex flex-col items-center">
-	<h1 class="text-4xl font-bold mb-4">1024</h1>
-	<div class="grid grid-cols-4 gap-2">
-		{#each board as row}
-			{#each row as tile}
-				<div
-					class={`w-16 h-16 flex items-center justify-center text-white font-bold 
-          ${tile === 0 ? 'bg-gray-200' : 'bg-blue-500'} 
-          ${tile === 2 ? 'bg-yellow-400' : ''} 
-          ${tile === 4 ? 'bg-green-400' : ''} 
-          ${tile === 8 ? 'bg-blue-400' : ''} 
-          ${tile === 16 ? 'bg-purple-400' : ''} 
-          ${tile === 32 ? 'bg-red-400' : ''} 
-          ${tile === 64 ? 'bg-orange-400' : ''} 
-          ${tile === 128 ? 'bg-pink-400' : ''} 
-          ${tile === 256 ? 'bg-indigo-400' : ''} 
-          ${tile === 512 ? 'bg-teal-400' : ''} 
-          ${tile === 1024 ? 'bg-gray-800' : ''}`}
-				>
-					{tile !== 0 ? tile : ''}
-				</div>
-			{/each}
+<div class="flex flex-row items-center justify-center gap-7">
+	<div class="flex flex-col flex-col-reverse items-center text-4xl font-bold">
+		{#each maxList as cell}
+			<div class={`p-4 ${bgColors[cell] || 'bg-blue-500'}`}>{cell}</div>
 		{/each}
 	</div>
-	<button class="mt-4 bg-blue-500 text-white py-2 px-4 rounded" on:click={startNewGame}>
-		Новая игра
-	</button>
+	<div class="flex flex-col items-center m-3">
+		<h1 class="text-4xl font-bold mb-4">Score: {score}</h1>
+		{#if win}
+			<h1 class="text-4xl font-bold mb-4 bg-emerald-600">YOU WIN!</h1>
+		{/if}
+		<div class="grid grid-cols-4 gap-2">
+			{#each board as row}
+				{#each row as tile}
+					<div
+						class={`w-30 h-30 flex items-center justify-center text-white font-bold text-3xl 
+                        ${bgColors[tile] || 'bg-blue-500'}
+                        `}
+					>
+						{tile !== 0 ? tile : ''}
+					</div>
+				{/each}
+			{/each}
+		</div>
+		<button class="mt-4 bg-blue-500 text-white py-2 px-4 rounded" on:click={startNewGame}>
+			Новая игра
+		</button>
+	</div>
 </div>
 
 <div class="p-4">
 	<h1 class="text-xl font-bold mb-4">Переназначение клавиш</h1>
-	<div class="mb-4">
-		<label class="block mb-1">Клавиша для движения вверх:</label>
-		<input
-			type="text"
-			value={newKeyBindings.up}
-			on:keydown={(event) => handleKeyChange(event, 'up')}
-			class="border p-2 w-full"
-		/>
-	</div>
+	<div class="grid grid-cols-4 gap-2 mb4">
+		<div class="mb-4">
+			<label class="block mb-1">Клавиша для движения вверх:</label>
+			<input
+				type="text"
+				value={newKeyBindings.up}
+				on:keydown={(event) => handleKeyChange(event, 'up')}
+				class="border p-2 w-full"
+			/>
+			<div class="col"></div>
+		</div>
 
-	<div class="mb-4">
-		<label class="block mb-1">Клавиша для движения вниз:</label>
-		<input
-			type="text"
-			value={newKeyBindings.down}
-			on:keydown={(event) => handleKeyChange(event, 'down')}
-			class="border p-2 w-full"
-		/>
-	</div>
+		<div class="mb-4">
+			<label class="block mb-1">Клавиша для движения вниз:</label>
+			<input
+				type="text"
+				value={newKeyBindings.down}
+				on:keydown={(event) => handleKeyChange(event, 'down')}
+				class="border p-2 w-full"
+			/>
+		</div>
 
-	<div class="mb-4">
-		<label class="block mb-1">Клавиша для движения влево:</label>
-		<input
-			type="text"
-			value={newKeyBindings.left}
-			on:keydown={(event) => handleKeyChange(event, 'left')}
-			class="border p-2 w-full"
-		/>
-	</div>
+		<div class="mb-4">
+			<label class="block mb-1">Клавиша для движения влево:</label>
+			<input
+				type="text"
+				value={newKeyBindings.left}
+				on:keydown={(event) => handleKeyChange(event, 'left')}
+				class="border p-2 w-full"
+			/>
+		</div>
 
-	<div class="mb-4">
-		<label class="block mb-1">Клавиша для движения вправо:</label>
-		<input
-			type="text"
-			value={newKeyBindings.right}
-			on:keydown={(event) => handleKeyChange(event, 'right')}
-			class="border p-2 w-full"
-		/>
+		<div class="mb-4">
+			<label class="block mb-1">Клавиша для движения вправо:</label>
+			<input
+				type="text"
+				value={newKeyBindings.right}
+				on:keydown={(event) => handleKeyChange(event, 'right')}
+				class="border p-2 w-full"
+			/>
+		</div>
 	</div>
 
 	<button on:click={saveBindings} class="bg-blue-500 text-white py-2 px-4 rounded">
@@ -325,14 +338,5 @@
 		display: grid;
 		grid-template-columns: repeat(4, 1fr);
 		gap: 10px;
-	}
-	.tile {
-		width: 70px;
-		height: 70px;
-		display: flex;
-		justify-content: center;
-		align-items: center;
-		font-size: 24px;
-		background-color: #eee;
 	}
 </style>
